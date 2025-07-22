@@ -42,6 +42,14 @@ export default function RootLayout() {
           </Link>
         )
       }} />
+      <Stack.Screen name="[chat]" options={{ headerTitle: ''}} />
+      <Stack.Screen name="settings/[chat]" options={{ presentation: "modal" , headerTitle: "Room Settings",
+        headerLeft: () => (
+          <Link dismissTo href="/">
+            <IconSymbol name="chevron.left" size={24}/>
+          </Link>
+        )
+      }} />
     </Stack>
   );
 }
