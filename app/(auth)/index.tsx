@@ -4,7 +4,7 @@ import { isClerkAPIResponseError, useSignIn, useSSO } from "@clerk/clerk-expo";
 import { ClerkAPIError } from "@clerk/types";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Image, SafeAreaView, View } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -13,7 +13,7 @@ export default function Index() {
   const { signIn, setActive } = useSignIn();
   const [errors, setErrors] = useState<ClerkAPIError[]>([]);
 
-  const handleSignInWithGoogle = useCallback(async () => {
+  const handleSignInWithGoogle = async () => {
     try {
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive } = await startSSOFlow({
@@ -31,13 +31,13 @@ export default function Index() {
         // Use the `signIn` or `signUp` returned from `startSSOFlow`
         // to handle next steps
       }
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      if (isClerkAPIResponseError(err)) setErrors(err.errors);
-      console.error(JSON.stringify(err, null, 2));
+    } catch (error) {
+      if (isClerkAPIResponseError(error)) {
+        setErrors(error.errors);
+      }
+      console.error(error);
     }
-  }, []);
+  };
 
   const signInWithPasskey = async () => {
     // 'discoverable' lets the user choose a passkey
@@ -90,7 +90,6 @@ export default function Index() {
             Modern Chat App
           </CustomText>
           <CustomText>The best chat app for your business</CustomText>
-          <CustomText>Sign in to continue</CustomText>
           {errors.map((error) => (
             <CustomText key={error.code}>{error.code}</CustomText>
           ))}
