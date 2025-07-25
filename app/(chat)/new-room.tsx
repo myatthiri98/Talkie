@@ -34,11 +34,17 @@ export default function NewRoom() {
 
   return (
     <>
-      <Stack.Screen options={{
-        headerRight: () => (
-          <Button title={isLoading ? 'Creating...' : 'Create'} onPress={handleCreateRoom} disabled={roomName === ''} />
-        )
-      }} />
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Button
+              title={isLoading ? 'Creating...' : 'Create'}
+              onPress={handleCreateRoom}
+              disabled={roomName === ''}
+            />
+          ),
+        }}
+      />
       <View style={styles.container}>
         <CustomText>New Room</CustomText>
         <Input
