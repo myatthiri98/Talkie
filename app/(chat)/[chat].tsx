@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/IconSymbol'
 import CustomText from '@/components/Text'
-import { appwriteConfig, database } from '@/utils/appwrite'
+import { appwriteConfig, client, database } from '@/utils/appwrite'
 import { Gray, Primary, Secondary, white } from '@/utils/colors'
 import { ChatRoom, Message } from '@/utils/types'
 import { useUser } from '@clerk/clerk-expo'
@@ -39,10 +39,21 @@ export default function Chat() {
     handleFirstLoad()
   }, [])
 
+  useEffect(() => {
+    const channel = `databases.${appwriteConfig.db}.collections.${appwriteConfig.col.chatrooms}.documents.{chatId}`
+
+    const unsubscribe = client.subscribe(channel, (e) => {
+      console.log(e)
+      getMessages()
+    })
+
+    return () => unsubscribe()
+  }, [chatId])
+
   const handleFirstLoad = async () => {
     try {
-      await getMessages()
       await getChatRoom()
+      await getMessages()
     } catch (e) {
       console.error(e)
     }
@@ -68,7 +79,7 @@ export default function Chat() {
         appwriteConfig.col.messages,
         [
           Query.equal('chatRoomId', chatId as string),
-          Query.orderDesc('$createdAt'),
+          Query.orderAsc('$createdAt'),
           Query.limit(100),
         ],
       )
@@ -79,16 +90,16 @@ export default function Chat() {
   }
 
   const handleSendMessage = async () => {
-    if (messageContent === '') return
+    if (messageContent.trim() === '') return
+
+    const message = {
+      content: messageContent,
+      senderId: user?.id,
+      senderName: user?.fullName,
+      senderPhoto: user?.imageUrl,
+      chatRoomId: chatId,
+    }
     try {
-      setIsLoading(true)
-      const message = {
-        content: messageContent,
-        senderId: user?.id,
-        senderName: user?.fullName,
-        senderPhoto: user?.imageUrl,
-        chatRoomId: chatId,
-      }
       await database.createDocument(
         appwriteConfig.db,
         appwriteConfig.col.messages,
@@ -107,8 +118,6 @@ export default function Chat() {
       )
     } catch (error) {
       console.error(error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
