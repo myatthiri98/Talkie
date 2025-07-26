@@ -40,7 +40,7 @@ export default function NewRoom() {
             <Button
               title={isLoading ? 'Creating...' : 'Create'}
               onPress={handleCreateRoom}
-              disabled={roomName === ''}
+              disabled={roomName === '' || isLoading}
             />
           ),
         }}
