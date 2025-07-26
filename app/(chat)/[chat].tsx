@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/IconSymbol'
 import CustomText from '@/components/Text'
 import { appwriteConfig, database } from '@/utils/appwrite'
-import { Gray, Primary, white } from '@/utils/colors'
+import { Gray, Primary, Secondary, white } from '@/utils/colors'
 import { ChatRoom, Message } from '@/utils/types'
 import { useUser } from '@clerk/clerk-expo'
 import { LegendList } from '@legendapp/list'
@@ -10,6 +10,7 @@ import { Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -134,11 +135,42 @@ export default function Chat() {
         >
           <LegendList
             data={messages}
-            renderItem={({ item }) => (
-              <View>
-                <CustomText>{item.content}</CustomText>
-              </View>
-            )}
+            renderItem={({ item }) => {
+              const isSender = item.senderId === user?.id
+              return (
+                <View
+                  style={[
+                    styles.messageContainer,
+                    { alignSelf: isSender ? 'flex-end' : 'flex-start' },
+                  ]}
+                >
+                  {!isSender && (
+                    <Image
+                      source={{ uri: item.senderPhoto }}
+                      style={styles.messageAvatar}
+                    />
+                  )}
+                  <View
+                    style={[
+                      styles.messageContent,
+                      { backgroundColor: isSender ? Primary : Secondary },
+                    ]}
+                  >
+                    <CustomText style={styles.messageSenderName}>
+                      {item.senderName}
+                    </CustomText>
+                    <CustomText>{item.content}</CustomText>
+                    <CustomText style={styles.messageTime}>
+                      {new Date(item.$createdAt!).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </CustomText>
+                  </View>
+                </View>
+              )
+            }}
             keyExtractor={(item) => item?.$id ?? 'unknown'}
             contentContainerStyle={{ padding: 10 }}
             recycleItems={true}
@@ -209,5 +241,30 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  messageContainer: {
+    padding: 10,
+    borderRadius: 10,
+    flexDirection: 'row',
+    gap: 6,
+    maxWidth: '80%',
+  },
+  messageAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 15,
+  },
+  messageContent: {
+    flex: 1,
+    borderRadius: 10,
+    padding: 10,
+  },
+  messageSenderName: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  messageTime: {
+    fontSize: 10,
+    textAlign: 'right',
   },
 })
