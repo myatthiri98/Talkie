@@ -40,7 +40,7 @@ export default function Chat() {
   }, [])
 
   useEffect(() => {
-    const channel = `databases.${appwriteConfig.db}.collections.${appwriteConfig.col.chatrooms}.documents.{chatId}`
+    const channel = `databases.${appwriteConfig.db}.collections.${appwriteConfig.col.chatrooms}.documents.${chatId}`
 
     const unsubscribe = client.subscribe(channel, (e) => {
       console.log(e)
